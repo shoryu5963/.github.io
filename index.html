@@ -27,18 +27,16 @@
         .content-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 25px; }
         .content-card h2 { margin-top: 0; font-size: 1.1rem; border-left: 5px solid #3182ce; padding-left: 10px; margin-bottom: 15px; }
 
-        /* 天気プリセット：4つをコンパクトに並べる */
+        /* 天気プリセット：確実に4つ並べるための設定 */
         .weather-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 15px;
+            margin-bottom: 5px;
         }
 
-        /* 検索・入力エリア */
         .search-box { display: flex; flex-direction: column; gap: 8px; }
-        .search-box input { 
-            padding: 12px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 1rem; 
-        }
+        .search-box input { padding: 12px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 1rem; }
         
         .btn-full { 
             width: 100%; padding: 12px; background: #3182ce; color: white; border: none; border-radius: 8px; 
@@ -49,12 +47,7 @@
         .btn-orange { background: #ed8936; margin-top: 10px; }
         .btn-orange:hover { background: #dd6b20; }
         
-        /* リンク集 */
-        .link-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
-            gap: 10px; 
-        }
+        .link-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
         .link-card {
             display: flex; align-items: center; justify-content: center;
             padding: 12px; background: #edf2f7; color: #2d3748;
@@ -92,7 +85,12 @@
             <a class="weatherwidget-io" href="https://forecast7.com/ja/35d99138d15/chino/" data-label_1="茅野" data-label_2="CHINO" data-theme="flat" data-days="3">CHINO</a>
         </div>
         <script>
-        !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
+        /* ウィジェットを初期化するスクリプト */
+        if (typeof __weatherwidget_init === 'function') {
+            __weatherwidget_init();
+        } else {
+            !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
+        }
         </script>
     </div>
 
@@ -120,8 +118,7 @@
     function searchWeather() {
         const place = document.getElementById('weather-input').value;
         if (!place) return;
-        const url = "https://tenki.jp/search/?keyword=" + encodeURIComponent(place);
-        window.open(url, '_blank');
+        window.open("https://tenki.jp/search/?keyword=" + encodeURIComponent(place), '_blank');
     }
 
     const quickLinks = [
