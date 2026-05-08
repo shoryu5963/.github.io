@@ -23,38 +23,30 @@
         .content-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 25px; }
         .content-card h2 { margin-top: 0; font-size: 1.1rem; border-left: 5px solid #3182ce; padding-left: 10px; margin-bottom: 15px; }
 
-        /* 自作天気ウィジェットのスタイル */
-        .weather-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
-        .weather-panel { background: #edf2f7; border-radius: 8px; padding: 12px; text-align: center; border: 1px solid #cbd5e1; }
-        .weather-panel h3 { margin: 0 0 5px 0; font-size: 1rem; color: #2d3748; }
-        .weather-panel .icon { font-size: 2.2rem; margin: 5px 0; }
-        .weather-panel .desc { font-size: 0.85rem; font-weight: bold; color: #4a5568; }
-        .weather-panel .temp { font-size: 1.3rem; font-weight: bold; color: #e53e3e; margin: 5px 0; }
-        .weather-panel .hl-temp { font-size: 0.75rem; color: #718096; }
+        /* 天気グリッド */
+        .weather-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
+        .weather-panel { background: #f8fafc; border-radius: 8px; padding: 15px; border: 1px solid #cbd5e1; }
+        .weather-panel h3 { margin: 0 0 12px 0; font-size: 1.1rem; text-align: center; color: #2d3748; border-bottom: 2px solid #e2e8f0; padding-bottom: 5px; }
+        
+        /* 3日分の並び */
+        .forecast-days { display: flex; justify-content: space-between; gap: 8px; }
+        .day-box { flex: 1; text-align: center; background: white; padding: 8px 4px; border-radius: 6px; border: 1px solid #e2e8f0; }
+        .day-label { font-size: 0.75rem; font-weight: bold; color: #718096; margin-bottom: 4px; }
+        .day-icon { font-size: 1.8rem; margin: 4px 0; }
+        .day-temp { font-size: 0.9rem; font-weight: bold; color: #e53e3e; }
+        .day-low { font-size: 0.7rem; color: #3182ce; }
 
-        /* 検索・入力エリア */
+        /* 検索・リンク集 */
+        .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
         .search-box { display: flex; flex-direction: column; gap: 8px; }
         .search-box input { padding: 12px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 1rem; }
-        
-        .btn-full { 
-            width: 100%; padding: 12px; background: #3182ce; color: white; border: none; border-radius: 8px; 
-            font-weight: bold; cursor: pointer; transition: background 0.2s; font-size: 1rem;
-            display: block; text-align: center; text-decoration: none; box-sizing: border-box;
-        }
+        .btn-full { width: 100%; padding: 12px; background: #3182ce; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: background 0.2s; font-size: 1rem; display: block; text-align: center; text-decoration: none; box-sizing: border-box; }
         .btn-full:hover { background: #2b6cb0; }
         .btn-orange { background: #ed8936; margin-top: 10px; }
         .btn-orange:hover { background: #dd6b20; }
-        
-        /* リンク集 */
         .link-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
-        .link-card {
-            display: flex; align-items: center; justify-content: center;
-            padding: 12px; background: #edf2f7; color: #2d3748;
-            text-decoration: none; border-radius: 8px; text-align: center;
-            font-weight: bold; transition: all 0.2s; border: 1px solid #cbd5e1; font-size: 0.9rem;
-        }
+        .link-card { display: flex; align-items: center; justify-content: center; padding: 12px; background: #edf2f7; color: #2d3748; text-decoration: none; border-radius: 8px; text-align: center; font-weight: bold; transition: all 0.2s; border: 1px solid #cbd5e1; font-size: 0.9rem; }
         .link-card:hover { background: #3182ce; color: white; transform: translateY(-2px); }
-
         .map-footer { padding: 8px; background: #f8fafc; text-align: right; border-top: 1px solid #eee; }
         .map-footer a { color: #3182ce; font-size: 0.8rem; text-decoration: none; }
     </style>
@@ -76,12 +68,11 @@
     </div>
 
     <div class="content-card">
-        <h2>主要ポイントの天気</h2>
-        <div class="weather-grid" id="weather-container">
-            </div>
+        <h2>主要ポイントの天気（3日間）</h2>
+        <div class="weather-grid" id="weather-container"></div>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+    <div class="tool-grid">
         <div class="content-card">
             <h2>高速料金（ドラぷら）</h2>
             <a href="https://www.driveplaza.com/dp/SearchTop" target="_blank" class="btn-full">ドラぷらを開く</a>
@@ -102,12 +93,7 @@
 </main>
 
 <script>
-    // -------------------------------------
-    // 確実動く！自作の天気取得プログラム
-    // -------------------------------------
     const weatherGrid = document.getElementById('weather-container');
-    
-    // 緯度経度を直接指定（これで確実！）
     const locations = [
         { name: "東京", lat: 35.6895, lon: 139.6917 },
         { name: "伊勢崎", lat: 36.3228, lon: 139.1939 },
@@ -115,57 +101,47 @@
         { name: "茅野", lat: 35.9953, lon: 138.1558 }
     ];
 
-    // 天気コードをアイコンと文字に変換
-    function getWeather(code) {
+    function getWeatherInfo(code) {
         if (code === 0) return { icon: "☀️", text: "快晴" };
-        if (code === 1 || code === 2) return { icon: "🌤", text: "晴れ/曇り" };
+        if (code <= 2) return { icon: "🌤", text: "晴れ" };
         if (code === 3) return { icon: "☁️", text: "曇り" };
-        if (code >= 51 && code <= 67) return { icon: "☔️", text: "雨" };
-        if (code >= 71 && code <= 77) return { icon: "❄️", text: "雪" };
-        if (code >= 80 && code <= 82) return { icon: "🌧", text: "にわか雨" };
-        if (code >= 95 && code <= 99) return { icon: "⚡️", text: "雷雨" };
-        return { icon: "🌫", text: "不明" };
+        if (code <= 67 || (code >= 80 && code <= 82)) return { icon: "☔️", text: "雨" };
+        if (code <= 77) return { icon: "❄️", text: "雪" };
+        return { icon: "⚡️", text: "雷雨" };
     }
 
     locations.forEach(loc => {
-        // 先に枠を作って順番が崩れないようにする
         const panel = document.createElement('div');
         panel.className = 'weather-panel';
-        panel.innerHTML = `<h3>${loc.name}</h3><div class="icon">⏳</div><div class="temp">取得中...</div>`;
+        panel.innerHTML = `<h3>${loc.name}</h3><div style="text-align:center">取得中...</div>`;
         weatherGrid.appendChild(panel);
 
-        // APIから現在の天気と今日の最高・最低気温を取得
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo`;
 
-        fetch(url)
-            .then(res => res.json())
-            .then(data => {
-                const currentTemp = Math.round(data.current.temperature_2m);
-                const code = data.current.weather_code;
-                const maxTemp = Math.round(data.daily.temperature_2m_max[0]);
-                const minTemp = Math.round(data.daily.temperature_2m_min[0]);
-                const weather = getWeather(code);
-
-                panel.innerHTML = `
-                    <h3>${loc.name}</h3>
-                    <div class="icon">${weather.icon}</div>
-                    <div class="desc">${weather.text}</div>
-                    <div class="temp">${currentTemp}℃</div>
-                    <div class="hl-temp">最高 ${maxTemp}℃ / 最低 ${minTemp}℃</div>
-                `;
-            })
-            .catch(err => {
-                panel.innerHTML = `<h3>${loc.name}</h3><div class="temp" style="color:red; font-size:0.9rem;">取得エラー</div>`;
-            });
+        fetch(url).then(res => res.json()).then(data => {
+            let html = `<h3>${loc.name}</h3><div class="forecast-days">`;
+            const labels = ["今日", "明日", "明後日"];
+            
+            for(let i=0; i<3; i++) {
+                const info = getWeatherInfo(data.daily.weather_code[i]);
+                html += `
+                    <div class="day-box">
+                        <div class="day-label">${labels[i]}</div>
+                        <div class="day-icon">${info.icon}</div>
+                        <div class="day-temp">${Math.round(data.daily.temperature_2m_max[i])}℃</div>
+                        <div class="day-low">${Math.round(data.daily.temperature_2m_min[i])}℃</div>
+                    </div>`;
+            }
+            html += `</div>`;
+            panel.innerHTML = html;
+        }).catch(() => {
+            panel.innerHTML = `<h3>${loc.name}</h3><div style="color:red">エラー</div>`;
+        });
     });
 
-    // -------------------------------------
-    // その他ツール・リンク集
-    // -------------------------------------
     function searchWeather() {
         const place = document.getElementById('weather-input').value;
-        if (!place) return;
-        window.open("https://tenki.jp/search/?keyword=" + encodeURIComponent(place), '_blank');
+        if (place) window.open("https://tenki.jp/search/?keyword=" + encodeURIComponent(place), '_blank');
     }
 
     const quickLinks = [
@@ -177,13 +153,9 @@
     const grid = document.getElementById('link-grid');
     quickLinks.forEach(link => {
         const a = document.createElement('a');
-        a.href = link.url;
-        a.className = 'link-card';
-        a.target = '_blank';
-        a.innerText = link.name;
+        a.href = link.url; a.className = 'link-card'; a.target = '_blank'; a.innerText = link.name;
         grid.appendChild(a);
     });
 </script>
-
 </body>
 </html>
