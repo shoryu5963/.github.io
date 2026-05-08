@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お出かけマップ</title>
+    <!-- LeafletのCSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { margin: 0; padding: 0; font-family: sans-serif; }
+        
+        /* 全体のレイアウト設定 */
+        .container {
+            display: flex;
+            height: 100vh;
+            flex-direction: column; /* スマホでは縦並び */
+        }
+
+        /* PC画面（768px以上）では横並び */
+        @media (min-width: 768px) {
+            .container { flex-direction: row; }
+            #sidebar { width: 300px; height: 100%; border-right: 1px solid #ccc; }
+            #map { flex-grow: 1; height: 100%; }
+        }
+
+        /* スマホ画面の設定 */
+        #map { height: 60%; width: 100%; }
+        #sidebar { height: 40%; width: 100%; overflow-y: auto; background: #fff; }
+
+        .list-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .list-item:active { background: #e0e0e0; } /* スマホのタップ感 */
+        .list-item:hover { background: #f9f9f9; }
+        h3 { margin: 0 0 5px 0; font-size: 16px; }
+        p { margin: 0; font-size: 12px; color: #666; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 地図エリア -->
+    <div id="map"></div>
+
+    <!-- リストエリア -->
+    <div id="sidebar">
+        <div id="location-list"></div>
+    </div>
+</div>
+
+<!-- LeafletのJS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // 1. 地点のデータ（ここを書き換えて場所を増やす）
+    const spots = [
+        { name: "東京駅", lat: 35.681, lng: 139.767, desc: "日本の玄関口" },
+        { name: "大阪駅", lat: 34.702, lng: 135.495, desc: "西日本の中心地" },
+        { name: "名古屋駅", lat: 35.170, lng: 136.881, desc: "リニアが楽しみな駅" }
+    ];
+
+    // 2. 地図の初期化
+    const map = L.map('map').setView([spots[0].lat, spots[0].lng], 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // 3. リストの生成とマーカー設置
+    const listContainer = document.getElementById('location-list');
+
+    spots.forEach(spot => {
+        // マーカーを地図に置く
+        const marker = L.marker([spot.lat, spot.lng]).addTo(map).bindPopup(spot.name);
+
+        // リストアイテム（HTML）を作る
+        const item = document.createElement('div');
+        item.className = 'list-item';
+        item.innerHTML = `<h3>${spot.name}</h3><p>${spot.desc}</p>`;
+        
+        // クリックイベント：地図を動かしてポップアップを開く
+        item.addEventListener('click', () => {
+            map.setView([spot.lat, spot.lng], 15, { animate: true });
+            marker.openPopup();
+            
+            // スマホの場合、クリックしたら地図までスクロールさせる
+            if (window.innerWidth < 768) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+
+        listContainer.appendChild(item);
+    });
+</script>
+</body>
+</html>
