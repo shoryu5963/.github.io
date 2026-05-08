@@ -146,31 +146,36 @@
     // カテゴリ別のリンク集
     const linkCategories = [
         {
-            title: "交通・道路情報",
+            title: "ルート作成・交通情報関連",
             links: [
+                { name: "Google マップナビ", url: "https://www.google.co.jp/maps/dir///" },
                 { name: "JARTIC 渋滞情報", url: "https://www.jartic.or.jp/" },
                 { name: "ドラぷら詳細料金", url: "https://www.driveplaza.com/dp/SearchTop" },
                 { name: "二輪車定率割引申込", url: "https://hayatabi.c-nexco.co.jp/drive/detail.html?id=203" },
                 { name: "二輪車割引料金検索", url: "https://search.w-nexco.co.jp/touring-search/" }
             ]
         },
-        {
-            title: "情報収集（天気・カメラ）",
-            links: [
-                { name: "tenki.jp (全国)", url: "https://tenki.jp/" },
-                { name: "ウェザーニュース", url: "https://weathernews.jp/onebox/" },
-                { name: "長野県 ライブカメラ", url: "https://www.pref.nagano.lg.jp/michigeki/camera.html" },
-                { name: "静岡県 道路カメラ", url: "http://www.shizuoka-road.or.jp/roadcamera/" }
-            ]
-        },
+
         {
             title: "車両管理・その他",
             links: [
                 { name: "Honda Total Care", url: "https://htc.honda.co.jp/member/" },
-                { name: "Google マップナビ", url: "https://www.google.co.jp/maps/dir///" },
                 { name: "Starlink ログイン", url: "https://www.starlink.com/account/home" }
             ]
-        }
+        },
+                {
+            title: "宿泊",
+            links: [
+                { name: "じゃらん", url: "https://www.jalan.net/" },
+                { name: "楽天トラベル", url: "https://travel.rakuten.co.jp/" }
+            ]
+        },
+                {
+            title: "交通その他",
+            links: [
+                { name: "航路マップ", url: "https://searoute.info/" }
+            ]
+        },
     ];
 
     const categoryContainer = document.getElementById('category-container');
