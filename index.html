@@ -3,95 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>お出かけマップ</title>
+    <title>マイマップ - uMap連動版</title>
     <!-- LeafletのCSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        body { margin: 0; padding: 0; font-family: sans-serif; }
+        /* 全体のスタイル */
+        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
         
-        /* 全体のレイアウト設定 */
         .container {
             display: flex;
             height: 100vh;
-            flex-direction: column; /* スマホでは縦並び */
+            flex-direction: column; /* スマホでは上下並び */
         }
 
-        /* PC画面（768px以上）では横並び */
+        /* PC（横幅768px以上）の設定 */
         @media (min-width: 768px) {
             .container { flex-direction: row; }
-            #sidebar { width: 300px; height: 100%; border-right: 1px solid #ccc; }
-            #map { flex-grow: 1; height: 100%; }
+            #sidebar { width: 350px; height: 100vh; border-right: 1px solid #ccc; border-top: none; }
+            #map { flex-grow: 1; height: 100vh; }
         }
 
-        /* スマホ画面の設定 */
-        #map { height: 60%; width: 100%; }
-        #sidebar { height: 40%; width: 100%; overflow-y: auto; background: #fff; }
+        /* スマホの設定 */
+        #map { height: 50%; width: 100%; }
+        #sidebar { height: 50%; width: 100%; overflow-y: auto; background: #fff; border-top: 2px solid #ddd; }
 
+        /* リストアイテムの装飾 */
         .list-item {
-            padding: 15px;
+            padding: 15px 20px;
             border-bottom: 1px solid #eee;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: background 0.2s;
         }
-        .list-item:active { background: #e0e0e0; } /* スマホのタップ感 */
-        .list-item:hover { background: #f9f9f9; }
-        h3 { margin: 0 0 5px 0; font-size: 16px; }
-        p { margin: 0; font-size: 12px; color: #666; }
+        .list-item:hover { background: #f0f7ff; }
+        .list-item:active { background: #e0e0e0; }
+        
+        .list-item h3 { margin: 0; font-size: 16px; color: #333; }
+        .list-item p { margin: 5px 0 0; font-size: 13px; color: #666; line-height: 1.4; }
+
+        /* 地図のポップアップ調整 */
+        .leaflet-popup-content { font-size: 14px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- 地図エリア -->
+    <!-- 右（スマホでは上）：地図 -->
     <div id="map"></div>
 
-    <!-- リストエリア -->
+    <!-- 左（スマホでは下）：登録地リスト -->
     <div id="sidebar">
-        <div id="location-list"></div>
+        <div id="location-list">
+            <div style="padding: 20px; color: #999;">データを読み込み中...</div>
+        </div>
     </div>
 </div>
 
 <!-- LeafletのJS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // 1. 地点のデータ（ここを書き換えて場所を増やす）
-    const spots = [
-        { name: "東京駅", lat: 35.681, lng: 139.767, desc: "日本の玄関口" },
-        { name: "大阪駅", lat: 34.702, lng: 135.495, desc: "西日本の中心地" },
-        { name: "名古屋駅", lat: 35.170, lng: 136.881, desc: "リニアが楽しみな駅" }
-    ];
+    // 1. 地図の初期化
+    const map = L.map('map').setView([35.0, 135.0], 5);
 
-    // 2. 地図の初期化
-    const map = L.map('map').setView([spots[0].lat, spots[0].lng], 10);
+    // OpenStreetMapのタイルを読み込み
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // 3. リストの生成とマーカー設置
-    const listContainer = document.getElementById('location-list');
+    // 2. GeoJSONファイルの読み込み
+    const geojsonFile = 'data.geojson';
 
-    spots.forEach(spot => {
-        // マーカーを地図に置く
-        const marker = L.marker([spot.lat, spot.lng]).addTo(map).bindPopup(spot.name);
+    fetch(geojsonFile)
+        .then(response => {
+            if (!response.ok) throw new Error('GeoJSONファイルが読み込めませんでした。同じフォルダにありますか？');
+            return response.json();
+        })
+        .then(data => {
+            const listContainer = document.getElementById('location-list');
+            listContainer.innerHTML = ''; // 読み込み中テキストを消去
 
-        // リストアイテム（HTML）を作る
-        const item = document.createElement('div');
-        item.className = 'list-item';
-        item.innerHTML = `<h3>${spot.name}</h3><p>${spot.desc}</p>`;
-        
-        // クリックイベント：地図を動かしてポップアップを開く
-        item.addEventListener('click', () => {
-            map.setView([spot.lat, spot.lng], 15, { animate: true });
-            marker.openPopup();
-            
-            // スマホの場合、クリックしたら地図までスクロールさせる
-            if (window.innerWidth < 768) {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+            const geojsonLayer = L.geoJson(data, {
+                // 地図上の各要素（点や線）に対する処理
+                onEachFeature: (feature, layer) => {
+                    const props = feature.properties;
+                    const name = props.name || "名称未設定";
+                    const desc = props.description || "";
+
+                    // ポップアップを設定
+                    layer.bindPopup(`<strong>${name}</strong><br>${desc}`);
+
+                    // リストアイテムを作成
+                    const item = document.createElement('div');
+                    item.className = 'list-item';
+                    item.innerHTML = `<h3>${name}</h3><p>${desc}</p>`;
+
+                    // リストクリック時のアクション
+                    item.onclick = () => {
+                        // 線（コース）の場合は全体をズーム、点の場合はその場所へ
+                        if (layer.getBounds) {
+                            map.fitBounds(layer.getBounds(), { padding: [50, 50], maxZoom: 15 });
+                        } else if (layer.getLatLng) {
+                            map.setView(layer.getLatLng(), 15);
+                        }
+                        layer.openPopup();
+
+                        // スマホなら地図（上部）へスクロール
+                        if (window.innerWidth < 768) {
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                    };
+
+                    listContainer.appendChild(item);
+                }
+            }).addTo(map);
+
+            // 全てのデータが収まるように地図の範囲を自動調整
+            if (data.features.length > 0) {
+                map.fitBounds(geojsonLayer.getBounds(), { padding: [30, 30] });
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('location-list').innerHTML = 
+                `<div style="padding:20px; color:red;">エラー: ${error.message}</div>`;
         });
-
-        listContainer.appendChild(item);
-    });
 </script>
+
 </body>
 </html>
