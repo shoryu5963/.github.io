@@ -23,10 +23,33 @@
             background: #e5e7eb;
         }
 
-        /* リンク集エリア */
-        .link-section { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .link-section h2 { margin-top: 0; font-size: 1.3rem; border-left: 5px solid #3182ce; padding-left: 12px; margin-bottom: 20px; }
+        /* コンテンツカード */
+        .content-card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 25px; }
+        .content-card h2 { margin-top: 0; font-size: 1.3rem; border-left: 5px solid #3182ce; padding-left: 12px; margin-bottom: 20px; }
+
+        /* 高速料金検索用スタイル */
+        .search-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .search-box { display: flex; flex-direction: column; gap: 8px; position: relative; }
+        .search-box label { font-size: 0.85rem; font-weight: bold; color: #4a5568; }
+        .search-box input { 
+            padding: 12px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 1rem; 
+        }
         
+        /* コピーボタン */
+        .copy-btn {
+            font-size: 0.7rem; background: #edf2f7; border: 1px solid #cbd5e1;
+            padding: 2px 8px; border-radius: 4px; cursor: pointer; align-self: flex-end;
+        }
+
+        .btn-full { 
+            width: 100%; padding: 14px; background: #3182ce; color: white; border: none; border-radius: 8px; 
+            font-weight: bold; cursor: pointer; transition: background 0.2s; font-size: 1rem;
+        }
+        .btn-full:hover { background: #2b6cb0; }
+        .btn-orange { background: #ed8936; margin-top: 10px; }
+        .btn-orange:hover { background: #dd6b20; }
+        
+        /* リンク集 */
         .link-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
@@ -42,6 +65,10 @@
 
         .map-footer { padding: 10px; background: #f8fafc; text-align: right; border-top: 1px solid #eee; }
         .map-footer a { color: #3182ce; font-size: 0.9rem; text-decoration: none; }
+
+        @media (max-width: 600px) {
+            .search-container { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -60,18 +87,72 @@
         </div>
     </div>
 
-    <div class="link-section">
+    <div class="content-card">
+        <h2>高速料金検索（ドラぷら）</h2>
+        <div class="search-container">
+            <div class="search-box">
+                <div style="display: flex; justify-content: space-between;">
+                    <label>出発IC</label>
+                    <button class="copy-btn" onclick="copyText('start-ic')">コピー</button>
+                </div>
+                <input type="text" id="start-ic" placeholder="例：東京">
+            </div>
+            <div class="search-box">
+                <div style="display: flex; justify-content: space-between;">
+                    <label>到着IC</label>
+                    <button class="copy-btn" onclick="copyText('end-ic')">コピー</button>
+                </div>
+                <input type="text" id="end-ic" placeholder="例：御殿場">
+            </div>
+        </div>
+        <button class="btn-full" onclick="openDrapura()">ドラぷらを開く</button>
+        <p style="font-size: 0.8rem; color: #666; margin-top: 10px;">※IC名をコピーして、ドラぷら側で貼り付けてください。</p>
+    </div>
+
+    <div class="content-card">
+        <h2>ピンポイント天気検索</h2>
+        <div class="search-box">
+            <input type="text" id="weather-input" placeholder="地名を入力（例：箱根、阿蘇山）">
+            <button class="btn-full btn-orange" onclick="searchWeather()">天気を調べる</button>
+        </div>
+    </div>
+
+    <div class="content-card">
         <h2>クイックリンク</h2>
         <div id="link-grid" class="link-grid"></div>
     </div>
 </main>
 
 <script>
+    // コピー機能
+    function copyText(id) {
+        const text = document.getElementById(id);
+        text.select();
+        document.execCommand('copy');
+        alert("コピーしました: " + text.value);
+    }
+
+    // ドラぷらを開く
+    function openDrapura() {
+        window.open("https://www.driveplaza.com/dp/SearchTop", '_blank');
+    }
+
+    // 天気検索
+    function searchWeather() {
+        const place = document.getElementById('weather-input').value;
+        if (!place) {
+            alert("地名を入力してください！");
+            return;
+        }
+        const url = "https://tenki.jp/search/?keyword=" + encodeURIComponent(place);
+        window.open(url, '_blank');
+    }
+
+    // リンク集
     const quickLinks = [
-        { name: "天気 (tenki.jp)", url: "https://tenki.jp/" },
-        { name: "ドラぷら (高速料金)", url: "https://www.driveplaza.com/" },
         { name: "JARTIC (渋滞情報)", url: "https://www.jartic.or.jp/" },
-        { name: "Google マップ", url: "https://www.google.co.jp/maps" }
+        { name: "Google マップ (ナビ)", url: "https://www.google.co.jp/maps/dir///" },
+        { name: "道の駅検索", url: "https://www.michi-no-eki.jp/" }
     ];
 
     const grid = document.getElementById('link-grid');
