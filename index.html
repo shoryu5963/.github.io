@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>カテゴリ別マイマップ</title>
+    <title>名道マップ</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body { margin: 0; padding: 0; font-family: sans-serif; background: #f4f4f4; }
@@ -16,14 +16,14 @@
         #map { height: 40%; width: 100%; }
         #sidebar { height: 60%; width: 100%; overflow-y: auto; background: #fff; }
 
-        /* カテゴリ見出しのスタイル */
+        /* カテゴリ見出し：今回のデータから「名道」などを取得 */
         .category-header {
             background: #e2e8f0;
-            padding: 10px 15px;
+            padding: 12px 15px;
             font-weight: bold;
             font-size: 14px;
             color: #333;
-            border-bottom: 1px solid #ccc;
+            border-bottom: 2px solid #cbd5e1;
             position: sticky;
             top: 0;
             z-index: 10;
@@ -31,11 +31,10 @@
 
         .list-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; background: #fff; }
         .list-item:hover { background: #f0f7ff; }
-        .list-item h3 { margin: 0; font-size: 15px; }
+        .list-item h3 { margin: 0; font-size: 15px; color: #1e293b; }
     </style>
 </head>
 <body>
-
 <div class="container">
     <div id="map"></div>
     <div id="sidebar"><div id="location-list"></div></div>
@@ -53,54 +52,54 @@
     const listContainer = document.getElementById('location-list');
     const allLayersGroup = L.featureGroup().addTo(map);
 
-    // umap形式のデータを読み込んでレイヤーごとに処理
-    if (typeof umapData !== 'undefined' && umapData.layers) {
-        umapData.layers.forEach(layerData => {
-            
-            // レイヤー名（名道など）を取得
-            const categoryName = (layerData._umap_options && layerData._umap_options.name) 
-                                 ? layerData._umap_options.name 
-                                 : "名称未設定レイヤー";
+    // リストに項目を追加する関数
+    function addToList(feature, layer) {
+        const name = feature.properties.name || "名称未設定";
+        const listItem = document.createElement('div');
+        listItem.className = 'list-item';
+        listItem.innerHTML = `<h3>${name}</h3>`;
+        
+        listItem.onclick = () => {
+            // 線（LineString）の場合はその範囲にズーム、点（Point）の場合は中心移動
+            if (layer.getBounds) {
+                map.fitBounds(layer.getBounds(), { padding: [50, 50] });
+            } else if (layer.getLatLng) {
+                map.setView(layer.getLatLng(), 15);
+            }
+            layer.openPopup();
+            // スマホなら地図までスクロール
+            if (window.innerWidth < 768) window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+        listContainer.appendChild(listItem);
+        layer.bindPopup(`<strong>${name}</strong>`);
+    }
 
-            // 見出しを追加
+    if (typeof umapData !== 'undefined' && umapData.layers) {
+        listContainer.innerHTML = '';
+        
+        umapData.layers.forEach(ld => {
+            // ★今回の重要ポイント：ld.properties.name からレイヤー名を取得
+            const catName = (ld.properties && ld.properties.name) ? ld.properties.name : "レイヤー";
+            
+            // 見出しの作成
             const header = document.createElement('div');
             header.className = 'category-header';
-            header.innerText = categoryName;
+            header.innerText = catName;
             listContainer.appendChild(header);
 
-            // そのレイヤー内の地点をリスト化
-            const geojsonLayer = L.geoJson(layerData, {
-                onEachFeature: (feature, layer) => {
-                    const name = feature.properties.name || "名称未設定";
-                    
-                    const listItem = document.createElement('div');
-                    listItem.className = 'list-item';
-                    listItem.innerHTML = `<h3>${name}</h3>`;
-                    
-                    listItem.onclick = () => {
-                        if (layer.getBounds) {
-                            map.fitBounds(layer.getBounds(), { padding: [50, 50] });
-                        } else {
-                            map.setView(layer.getLatLng(), 15);
-                        }
-                        layer.openPopup();
-                        if (window.innerWidth < 768) window.scrollTo({ top: 0, behavior: 'smooth' });
-                    };
-                    listContainer.appendChild(listItem);
-                    layer.bindPopup(`<strong>${name}</strong>`);
-                }
-            });
-            
-            geojsonLayer.addTo(allLayersGroup);
+            // 各レイヤーのデータを地図とリストに追加
+            L.geoJson(ld, {
+                style: { color: '#3b82f6', weight: 5, opacity: 0.7 }, // 道を見やすく青色に
+                onEachFeature: addToList
+            }).addTo(allLayersGroup);
         });
 
-        // 全体のズーム調整
+        // 全データが収まるように地図を調整
         if (allLayersGroup.getLayers().length > 0) {
             map.fitBounds(allLayersGroup.getBounds(), { padding: [30, 30] });
         }
-
     } else {
-        listContainer.innerHTML = '<p style="padding:15px;color:red;">データを読み込めませんでした。フルデータ（.umap）形式か確認してください。</p>';
+        listContainer.innerHTML = '<p style="padding:20px;color:red;">データ構造が正しくありません。.umapファイルを正しく貼り付けているか確認してください。</p>';
     }
 </script>
 </body>
