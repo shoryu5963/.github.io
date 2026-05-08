@@ -11,7 +11,6 @@
         
         main { max-width: 1200px; margin: 0 auto; padding: 20px; }
 
-        /* 地図エリア */
         .map-section {
             background: white; border-radius: 12px; overflow: hidden;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 25px;
@@ -20,11 +19,9 @@
             width: 100%; height: 65vh; border: 0; display: block; background: #e5e7eb;
         }
 
-        /* コンテンツカード */
         .content-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 25px; }
         .content-card h2 { margin-top: 0; font-size: 1.1rem; border-left: 5px solid #3182ce; padding-left: 10px; margin-bottom: 15px; }
 
-        /* 天気グリッド */
         .weather-grid { 
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
@@ -38,7 +35,6 @@
             border-bottom: 1px solid #edf2f7; padding-bottom: 8px;
         }
         
-        /* 3日間横並び（白黒基調） */
         .forecast-days { display: flex; justify-content: space-between; gap: 8px; }
         .day-box { 
             flex: 1; text-align: center; padding: 10px 4px; border-radius: 8px; 
@@ -46,17 +42,15 @@
         }
         .day-label { font-size: 0.8rem; font-weight: bold; color: #64748b; margin-bottom: 6px; }
         
-        /* 白黒アイコンのスタイル */
+        /* Font Awesomeアイコンのスタイル（白黒・グレー） */
         .day-icon { 
             font-size: 1.8rem; margin: 8px 0; display: block; min-height: 35px;
-            color: #4a5568; /* 濃いグレーで統一 */
+            color: #4a5568; 
         }
         
-        /* 気温も白黒（グレー）に統一 */
         .day-temp-max { font-size: 1rem; font-weight: bold; color: #2d3748; margin-bottom: 2px; }
         .day-temp-min { font-size: 0.85rem; font-weight: bold; color: #718096; }
 
-        /* ツール・リンク集 */
         .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
         .search-box { display: flex; flex-direction: column; gap: 8px; }
         .search-box input { padding: 12px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 1rem; }
@@ -115,6 +109,8 @@
 
 <script>
     const weatherGrid = document.getElementById('weather-container');
+    
+    // それぞれの拠点の緯度経度から確実に個別で取得します
     const locations = [
         { name: "東京", lat: 35.6895, lon: 139.6917 },
         { name: "伊勢崎", lat: 36.3228, lon: 139.1939 },
@@ -122,18 +118,18 @@
         { name: "茅野", lat: 35.9953, lon: 138.1558 }
     ];
 
-    // 実際の天気に合わせて、モノクロのFont Awesomeアイコンを返す
+    // Font Awesomeのモノクロアイコンを返す
     function getWeatherIcon(code) {
-        if (code === 0) return '<i class="fa-solid fa-sun"></i>'; // 快晴
-        if (code <= 2) return '<i class="fa-solid fa-cloud-sun"></i>'; // 晴れ/曇り
-        if (code === 3) return '<i class="fa-solid fa-cloud"></i>'; // 曇り
-        if (code <= 48) return '<i class="fa-solid fa-smog"></i>'; // 霧
-        if (code <= 67) return '<i class="fa-solid fa-cloud-rain"></i>'; // 雨
-        if (code <= 77) return '<i class="fa-solid fa-snowflake"></i>'; // 雪
-        if (code <= 82) return '<i class="fa-solid fa-cloud-showers-heavy"></i>'; // 大雨
-        if (code <= 86) return '<i class="fa-solid fa-snowflake"></i>'; // 雪
-        if (code <= 99) return '<i class="fa-solid fa-cloud-bolt"></i>'; // 雷雨
-        return '<i class="fa-solid fa-circle-question"></i>'; // 不明
+        if (code === 0) return '<i class="fa-solid fa-sun"></i>';
+        if (code <= 2) return '<i class="fa-solid fa-cloud-sun"></i>';
+        if (code === 3) return '<i class="fa-solid fa-cloud"></i>';
+        if (code <= 48) return '<i class="fa-solid fa-smog"></i>';
+        if (code <= 67) return '<i class="fa-solid fa-cloud-rain"></i>';
+        if (code <= 77) return '<i class="fa-solid fa-snowflake"></i>';
+        if (code <= 82) return '<i class="fa-solid fa-cloud-showers-heavy"></i>';
+        if (code <= 86) return '<i class="fa-solid fa-snowflake"></i>';
+        if (code <= 99) return '<i class="fa-solid fa-cloud-bolt"></i>';
+        return '<i class="fa-solid fa-circle-question"></i>';
     }
 
     locations.forEach(loc => {
@@ -149,7 +145,6 @@
             const labels = ["今日", "明日", "明後日"];
             
             for(let i=0; i<3; i++) {
-                // ここで実際の天気コードを元にアイコンを取得
                 const icon = getWeatherIcon(data.daily.weather_code[i]);
 
                 html += `
