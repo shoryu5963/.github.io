@@ -17,22 +17,21 @@
         }
         .map-wrapper iframe {
             width: 100%;
-            height: 75vh;
+            height: 70vh;
             border: 0;
             display: block;
             background: #e5e7eb;
         }
 
         /* コンテンツカード */
-        .content-card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 25px; }
-        .content-card h2 { margin-top: 0; font-size: 1.3rem; border-left: 5px solid #3182ce; padding-left: 12px; margin-bottom: 20px; }
+        .content-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 25px; }
+        .content-card h2 { margin-top: 0; font-size: 1.1rem; border-left: 5px solid #3182ce; padding-left: 10px; margin-bottom: 15px; }
 
-        /* 天気プリセット（埋め込み）のグリッド */
-        .weather-presets {
+        /* 天気プリセット：4つをコンパクトに並べる */
+        .weather-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 15px;
-            margin-bottom: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
         }
 
         /* 検索・入力エリア */
@@ -42,7 +41,7 @@
         }
         
         .btn-full { 
-            width: 100%; padding: 14px; background: #3182ce; color: white; border: none; border-radius: 8px; 
+            width: 100%; padding: 12px; background: #3182ce; color: white; border: none; border-radius: 8px; 
             font-weight: bold; cursor: pointer; transition: background 0.2s; font-size: 1rem;
             display: block; text-align: center; text-decoration: none; box-sizing: border-box;
         }
@@ -53,19 +52,19 @@
         /* リンク集 */
         .link-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
-            gap: 15px; 
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+            gap: 10px; 
         }
         .link-card {
             display: flex; align-items: center; justify-content: center;
-            padding: 15px; background: #edf2f7; color: #2d3748;
+            padding: 12px; background: #edf2f7; color: #2d3748;
             text-decoration: none; border-radius: 8px; text-align: center;
-            font-weight: bold; transition: all 0.2s; border: 1px solid #cbd5e1;
+            font-weight: bold; transition: all 0.2s; border: 1px solid #cbd5e1; font-size: 0.9rem;
         }
         .link-card:hover { background: #3182ce; color: white; transform: translateY(-2px); }
 
-        .map-footer { padding: 10px; background: #f8fafc; text-align: right; border-top: 1px solid #eee; }
-        .map-footer a { color: #3182ce; font-size: 0.9rem; text-decoration: none; }
+        .map-footer { padding: 8px; background: #f8fafc; text-align: right; border-top: 1px solid #eee; }
+        .map-footer a { color: #3182ce; font-size: 0.8rem; text-decoration: none; }
     </style>
 </head>
 <body>
@@ -86,25 +85,28 @@
 
     <div class="content-card">
         <h2>主要ポイントの天気</h2>
-        <div class="weather-presets">
-            <a class="weatherwidget-io" href="https://forecast7.com/ja/35d69139d69/tokyo/" data-label_1="東京" data-label_2="TOKYO" data-theme="flat" >東京 TOKYO</a>
-            <a class="weatherwidget-io" href="https://forecast7.com/ja/35d99138d15/chino/" data-label_1="茅野" data-label_2="CHINO" data-theme="flat" >茅野 CHINO</a>
+        <div class="weather-grid">
+            <a class="weatherwidget-io" href="https://forecast7.com/ja/35d69139d69/tokyo/" data-label_1="東京" data-label_2="TOKYO" data-theme="flat" data-days="3">TOKYO</a>
+            <a class="weatherwidget-io" href="https://forecast7.com/ja/36d32139d19/isesaki/" data-label_1="伊勢崎" data-label_2="ISESAKI" data-theme="flat" data-days="3">ISESAKI</a>
+            <a class="weatherwidget-io" href="https://forecast7.com/ja/35d42138d86/yamanakako/" data-label_1="山中湖" data-label_2="YAMANAKAKO" data-theme="flat" data-days="3">YAMANAKAKO</a>
+            <a class="weatherwidget-io" href="https://forecast7.com/ja/35d99138d15/chino/" data-label_1="茅野" data-label_2="CHINO" data-theme="flat" data-days="3">CHINO</a>
         </div>
         <script>
         !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
         </script>
     </div>
 
-    <div class="content-card">
-        <h2>高速料金検索（ドラぷら）</h2>
-        <a href="https://www.driveplaza.com/dp/SearchTop" target="_blank" class="btn-full">ドラぷらで料金を調べる</a>
-    </div>
-
-    <div class="content-card">
-        <h2>地名検索（tenki.jpへ）</h2>
-        <div class="search-box">
-            <input type="text" id="weather-input" placeholder="地名を入力（例：箱根、阿蘇山）">
-            <button class="btn-full btn-orange" onclick="searchWeather()">検索結果を表示</button>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+        <div class="content-card">
+            <h2>高速料金（ドラぷら）</h2>
+            <a href="https://www.driveplaza.com/dp/SearchTop" target="_blank" class="btn-full">ドラぷらを開く</a>
+        </div>
+        <div class="content-card">
+            <h2>地名で天気検索</h2>
+            <div class="search-box">
+                <input type="text" id="weather-input" placeholder="例：阿蘇山、国道299">
+                <button class="btn-full btn-orange" onclick="searchWeather()">tenki.jpで検索</button>
+            </div>
         </div>
     </div>
 
@@ -117,17 +119,14 @@
 <script>
     function searchWeather() {
         const place = document.getElementById('weather-input').value;
-        if (!place) {
-            alert("地名を入力してください！");
-            return;
-        }
+        if (!place) return;
         const url = "https://tenki.jp/search/?keyword=" + encodeURIComponent(place);
         window.open(url, '_blank');
     }
 
     const quickLinks = [
-        { name: "JARTIC (渋滞情報)", url: "https://www.jartic.or.jp/" },
-        { name: "Google マップ (ナビ)", url: "https://www.google.co.jp/maps/dir///" },
+        { name: "JARTIC 渋滞情報", url: "https://www.jartic.or.jp/" },
+        { name: "Google マップナビ", url: "https://www.google.co.jp/maps/dir///" },
         { name: "道の駅検索", url: "https://www.michi-no-eki.jp/" }
     ];
 
