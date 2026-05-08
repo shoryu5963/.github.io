@@ -3,21 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>マイマップ</title>
+    <title>カテゴリ別マイマップ</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        body { margin: 0; padding: 0; font-family: sans-serif; }
+        body { margin: 0; padding: 0; font-family: sans-serif; background: #f4f4f4; }
         .container { display: flex; height: 100vh; flex-direction: column; }
         @media (min-width: 768px) {
             .container { flex-direction: row; }
             #sidebar { width: 350px; height: 100vh; border-right: 1px solid #ccc; }
             #map { flex-grow: 1; height: 100vh; }
         }
-        #map { height: 50%; width: 100%; }
-        #sidebar { height: 50%; width: 100%; overflow-y: auto; background: #fff; }
-        .list-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; }
+        #map { height: 40%; width: 100%; }
+        #sidebar { height: 60%; width: 100%; overflow-y: auto; background: #fff; }
+
+        .category-header {
+            background: #e2e8f0;
+            padding: 10px 15px;
+            font-weight: bold;
+            font-size: 14px;
+            color: #333;
+            border-bottom: 1px solid #ccc;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .list-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; background: #fff; }
         .list-item:hover { background: #f0f7ff; }
-        .list-item h3 { margin: 0; font-size: 16px; }
+        .list-item h3 { margin: 0; font-size: 15px; }
     </style>
 </head>
 <body>
@@ -28,7 +41,7 @@
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<!-- ★ ここで外部に分けたデータを読み込む -->
+<!-- uMapのデータ（umap形式）を貼り付けたファイルを読み込む -->
 <script src="data.js"></script>
 
 <script>
@@ -38,35 +51,63 @@
     }).addTo(map);
 
     const listContainer = document.getElementById('location-list');
+    
+    // 全てのレイヤーをまとめるグループ（最後に地図の表示範囲を自動調整するため）
+    const allLayersGroup = L.featureGroup().addTo(map);
 
-    // umapData（data.jsの中身）を使ってリストとピンを作成
-    if (typeof umapData !== 'undefined') {
-        const geojsonLayer = L.geoJson(umapData, {
-            onEachFeature: (feature, layer) => {
-                const name = feature.properties.name || "名称未設定";
-                
-                const item = document.createElement('div');
-                item.className = 'list-item';
-                item.innerHTML = `<h3>${name}</h3>`;
-                item.onclick = () => {
-                    if (layer.getBounds) {
-                        map.fitBounds(layer.getBounds(), { padding: [50, 50] });
-                    } else {
-                        map.setView(layer.getLatLng(), 15);
-                    }
-                    layer.openPopup();
-                    if (window.innerWidth < 768) window.scrollTo({ top: 0, behavior: 'smooth' });
-                };
-                listContainer.appendChild(item);
-                layer.bindPopup(name);
-            }
-        }).addTo(map);
+    if (typeof umapData !== 'undefined' && umapData.layers) {
+        // uMapのレイヤーごとにループ処理
+        umapData.layers.forEach(layerData => {
+            
+            // レイヤー名（カテゴリ名）を取得。設定されていなければ「名称未設定レイヤー」
+            const categoryName = (layerData._umap_options && layerData._umap_options.name) 
+                                 ? layerData._umap_options.name 
+                                 : "名称未設定レイヤー";
 
-        if (umapData.features.length > 0) {
-            map.fitBounds(geojsonLayer.getBounds());
+            // サイドバーにカテゴリの見出しを作成
+            const header = document.createElement('div');
+            header.className = 'category-header';
+            header.innerText = categoryName;
+            listContainer.appendChild(header);
+
+            // 地図にピンを立てる＆リストの中身を作る
+            const geojsonLayer = L.geoJson(layerData, {
+                onEachFeature: (feature, layer) => {
+                    const name = feature.properties.name || "名称未設定";
+                    
+                    // リストアイテム作成
+                    const listItem = document.createElement('div');
+                    listItem.className = 'list-item';
+                    listItem.innerHTML = `<h3>${name}</h3>`;
+                    
+                    // クリック時のジャンプ処理
+                    listItem.onclick = () => {
+                        if (layer.getBounds) {
+                            map.fitBounds(layer.getBounds(), { padding: [50, 50] });
+                        } else {
+                            map.setView(layer.getLatLng(), 15);
+                        }
+                        layer.openPopup();
+                        if (window.innerWidth < 768) window.scrollTo({ top: 0, behavior: 'smooth' });
+                    };
+                    listContainer.appendChild(listItem);
+                    
+                    // ポップアップ設定
+                    layer.bindPopup(`<strong>${name}</strong>`);
+                }
+            });
+            
+            // まとめて地図に追加
+            geojsonLayer.addTo(allLayersGroup);
+        });
+
+        // 全てのピンが画面に収まるようにズーム調整
+        if (allLayersGroup.getLayers().length > 0) {
+            map.fitBounds(allLayersGroup.getBounds(), { padding: [30, 30] });
         }
+
     } else {
-        listContainer.innerHTML = '<p style="padding:15px;color:red;">データを読み込めませんでした。</p>';
+        listContainer.innerHTML = '<p style="padding:15px;color:red;">データを読み込めませんでした。umap形式のデータか確認してください。</p>';
     }
 </script>
 </body>
