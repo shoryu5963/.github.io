@@ -3,104 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>名道マップ</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <title>ツーリング・マップ</title>
     <style>
-        body { margin: 0; padding: 0; font-family: sans-serif; background: #f4f4f4; }
-        .container { display: flex; height: 100vh; flex-direction: column; }
-        @media (min-width: 768px) {
-            .container { flex-direction: row; }
-            #sidebar { width: 350px; height: 100vh; border-right: 1px solid #ccc; }
-            #map { flex-grow: 1; height: 100vh; }
-        }
-        #map { height: 40%; width: 100%; }
-        #sidebar { height: 60%; width: 100%; overflow-y: auto; background: #fff; }
+        body { margin: 0; padding: 0; font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif; background: #f0f2f5; color: #333; }
+        
+        /* ヘッダー */
+        header { background: #1a202c; color: white; padding: 1rem; text-align: center; }
+        
+        /* メインコンテンツ：地図を中央に */
+        main { max-width: 1000px; margin: 0 auto; padding: 20px; }
 
-        /* カテゴリ見出し：今回のデータから「名道」などを取得 */
-        .category-header {
-            background: #e2e8f0;
-            padding: 12px 15px;
-            font-weight: bold;
-            font-size: 14px;
-            color: #333;
-            border-bottom: 2px solid #cbd5e1;
-            position: sticky;
-            top: 0;
-            z-index: 10;
+        .map-container {
+            background: white; border-radius: 12px; overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px;
         }
 
-        .list-item { padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; background: #fff; }
-        .list-item:hover { background: #f0f7ff; }
-        .list-item h3 { margin: 0; font-size: 15px; color: #1e293b; }
+        /* uMapの埋め込み。アスペクト比を維持（16:9） */
+        .iframe-wrapper { position: relative; width: 100%; padding-top: 56.25%; }
+        .iframe-wrapper iframe {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
+        }
+
+        /* リンク集セクション */
+        .link-section { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .link-section h2 { margin-top: 0; font-size: 1.2rem; border-left: 4px solid #3182ce; padding-left: 10px; }
+        
+        .link-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+        .link-card {
+            display: block; padding: 12px; background: #edf2f7; color: #2d3748;
+            text-decoration: none; border-radius: 8px; text-align: center;
+            font-weight: bold; transition: background 0.2s;
+        }
+        .link-card:hover { background: #e2e8f0; color: #3182ce; }
     </style>
 </head>
 <body>
-<div class="container">
-    <div id="map"></div>
-    <div id="sidebar"><div id="location-list"></div></div>
-</div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="data.js"></script>
+<header>
+    <h1>りんの旅地図</h1>
+</header>
+
+<main>
+    <div class="map-container">
+        <div class="iframe-wrapper">
+            <iframe src="http://umap.openstreetmap.fr/ja/map/map_1403055?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&allowEdit=false&moreControl=true&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=undefined&captionBar=false"></iframe>
+        </div>
+    </div>
+
+    <div class="link-section">
+        <h2>クイックリンク</h2>
+        <div id="link-grid" class="link-grid">
+            </div>
+    </div>
+</main>
 
 <script>
-    const map = L.map('map').setView([35, 135], 5);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+    // ★ メンテナンス用：ここにリンクを足していくだけで自動反映されるよ
+    const quickLinks = [
+        { name: "日本気象協会 (天気予報)", url: "https://tenki.jp/" },
+        { name: "ドラぷら (高速料金)", url: "https://www.driveplaza.com/" },
+        { name: "JARTIC (道路交通情報)", url: "https://www.jartic.or.jp/" },
+        { name: "Google マップ", url: "https://www.google.co.jp/maps" }
+    ];
 
-    const listContainer = document.getElementById('location-list');
-    const allLayersGroup = L.featureGroup().addTo(map);
-
-    // リストに項目を追加する関数
-    function addToList(feature, layer) {
-        const name = feature.properties.name || "名称未設定";
-        const listItem = document.createElement('div');
-        listItem.className = 'list-item';
-        listItem.innerHTML = `<h3>${name}</h3>`;
-        
-        listItem.onclick = () => {
-            // 線（LineString）の場合はその範囲にズーム、点（Point）の場合は中心移動
-            if (layer.getBounds) {
-                map.fitBounds(layer.getBounds(), { padding: [50, 50] });
-            } else if (layer.getLatLng) {
-                map.setView(layer.getLatLng(), 15);
-            }
-            layer.openPopup();
-            // スマホなら地図までスクロール
-            if (window.innerWidth < 768) window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
-        listContainer.appendChild(listItem);
-        layer.bindPopup(`<strong>${name}</strong>`);
-    }
-
-    if (typeof umapData !== 'undefined' && umapData.layers) {
-        listContainer.innerHTML = '';
-        
-        umapData.layers.forEach(ld => {
-            // ★今回の重要ポイント：ld.properties.name からレイヤー名を取得
-            const catName = (ld.properties && ld.properties.name) ? ld.properties.name : "レイヤー";
-            
-            // 見出しの作成
-            const header = document.createElement('div');
-            header.className = 'category-header';
-            header.innerText = catName;
-            listContainer.appendChild(header);
-
-            // 各レイヤーのデータを地図とリストに追加
-            L.geoJson(ld, {
-                style: { color: '#3b82f6', weight: 5, opacity: 0.7 }, // 道を見やすく青色に
-                onEachFeature: addToList
-            }).addTo(allLayersGroup);
-        });
-
-        // 全データが収まるように地図を調整
-        if (allLayersGroup.getLayers().length > 0) {
-            map.fitBounds(allLayersGroup.getBounds(), { padding: [30, 30] });
-        }
-    } else {
-        listContainer.innerHTML = '<p style="padding:20px;color:red;">データ構造が正しくありません。.umapファイルを正しく貼り付けているか確認してください。</p>';
-    }
+    const grid = document.getElementById('link-grid');
+    quickLinks.forEach(link => {
+        const a = document.createElement('a');
+        a.href = link.url;
+        a.className = 'link-card';
+        a.target = '_blank'; // 別タブで開く
+        a.innerText = link.name;
+        grid.appendChild(a);
+    });
 </script>
+
 </body>
 </html>
