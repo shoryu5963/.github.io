@@ -12,45 +12,23 @@
         
         main { max-width: 1200px; margin: 0 auto; padding: 20px; }
 
-        /* 地図エリア */
-        .map-section {
-            background: white; border-radius: 12px; overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 25px;
-        }
-        .map-wrapper iframe {
-            width: 100%; height: 65vh; border: 0; display: block; background: #e5e7eb;
-        }
+        .map-section { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 25px; }
+        .map-wrapper iframe { width: 100%; height: 65vh; border: 0; display: block; background: #e5e7eb; }
 
-        /* コンテンツカード */
         .content-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 25px; }
         .content-card h2 { margin-top: 0; font-size: 1.1rem; border-left: 5px solid #3182ce; padding-left: 10px; margin-bottom: 15px; }
 
-        /* 天気グリッド */
-        .weather-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
-            gap: 15px; 
-        }
-        .weather-panel { 
-            background: #ffffff; border-radius: 10px; padding: 15px; border: 1px solid #e2e8f0; 
-        }
-        .weather-panel h3 { 
-            margin: 0 0 12px 0; font-size: 1.1rem; text-align: center; color: #2d3748; 
-            border-bottom: 1px solid #edf2f7; padding-bottom: 8px;
-        }
+        .weather-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
+        .weather-panel { background: #ffffff; border-radius: 10px; padding: 15px; border: 1px solid #e2e8f0; }
+        .weather-panel h3 { margin: 0 0 12px 0; font-size: 1.1rem; text-align: center; color: #2d3748; border-bottom: 1px solid #edf2f7; padding-bottom: 8px; }
         
-        /* 3日間横並び */
         .forecast-days { display: flex; justify-content: space-between; gap: 8px; }
-        .day-box { 
-            flex: 1; text-align: center; padding: 10px 4px; border-radius: 8px; 
-            background: #f8fafc; border: 1px solid #f1f5f9;
-        }
+        .day-box { flex: 1; text-align: center; padding: 10px 4px; border-radius: 8px; background: #f8fafc; border: 1px solid #f1f5f9; }
         .day-label { font-size: 0.8rem; font-weight: bold; color: #64748b; margin-bottom: 6px; }
         .day-icon { font-size: 1.8rem; margin: 8px 0; display: block; min-height: 35px; color: #4a5568; }
         .day-temp-max { font-size: 1rem; font-weight: bold; color: #2d3748; margin-bottom: 2px; }
         .day-temp-min { font-size: 0.85rem; font-weight: bold; color: #718096; }
 
-        /* ツール・リンク集 */
         .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
         .search-box { display: flex; flex-direction: column; gap: 8px; }
         .search-box input { padding: 12px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 1rem; }
@@ -58,8 +36,11 @@
         .btn-full:hover { background: #2b6cb0; }
         .btn-orange { background: #ed8936; margin-top: 10px; }
         
+        /* 旅の計画（リンク集）のカテゴリ分け用 */
+        .link-category { margin-bottom: 20px; }
+        .link-category h3 { font-size: 0.95rem; color: #4a5568; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px dashed #cbd5e1; }
         .link-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
-        .link-card { display: flex; align-items: center; justify-content: center; padding: 12px; background: #edf2f7; color: #2d3748; text-decoration: none; border-radius: 8px; font-weight: bold; border: 1px solid #cbd5e1; font-size: 0.9rem; }
+        .link-card { display: flex; align-items: center; justify-content: center; padding: 12px; background: #edf2f7; color: #2d3748; text-decoration: none; border-radius: 8px; font-weight: bold; border: 1px solid #cbd5e1; font-size: 0.85rem; text-align: center; }
         .link-card:hover { background: #3182ce; color: white; }
         
         .map-footer { padding: 8px; background: #f8fafc; text-align: right; border-top: 1px solid #eee; }
@@ -103,7 +84,7 @@
 
     <div class="content-card">
         <h2>旅の計画</h2>
-        <div id="link-grid" class="link-grid"></div>
+        <div id="category-container"></div>
     </div>
 </main>
 
@@ -162,20 +143,50 @@
         if (place) window.open("https://tenki.jp/search/?keyword=" + encodeURIComponent(place), '_blank');
     }
 
-    const quickLinks = [
-        { name: "JARTIC 渋滞情報", url: "https://www.jartic.or.jp/" },
-        { name: "高速料金検索", url: "https://www.driveplaza.com/dp/SearchTop" },
-        { name: "Google マップナビ", url: "https://www.google.co.jp/maps/dir///" },
-        { name: "二輪車定率割引料金検索", url: "https://search.w-nexco.co.jp/touring-search/" },
-        { name: "二輪車定率割引申込", url: "https://hayatabi.c-nexco.co.jp/drive/detail.html?id=203" },
-        { name: "Honda Total Care", url: "https://htc.honda.co.jp/member/" }
+    // カテゴリ別のリンク集
+    const linkCategories = [
+        {
+            title: "交通・道路情報",
+            links: [
+                { name: "JARTIC 渋滞情報", url: "https://www.jartic.or.jp/" },
+                { name: "ドラぷら詳細料金", url: "https://www.driveplaza.com/dp/SearchTop" },
+                { name: "二輪車定率割引申込", url: "https://hayatabi.c-nexco.co.jp/drive/detail.html?id=203" },
+                { name: "二輪車割引料金検索", url: "https://search.w-nexco.co.jp/touring-search/" }
+            ]
+        },
+        {
+            title: "情報収集（天気・カメラ）",
+            links: [
+                { name: "tenki.jp (全国)", url: "https://tenki.jp/" },
+                { name: "ウェザーニュース", url: "https://weathernews.jp/onebox/" },
+                { name: "長野県 ライブカメラ", url: "https://www.pref.nagano.lg.jp/michigeki/camera.html" },
+                { name: "静岡県 道路カメラ", url: "http://www.shizuoka-road.or.jp/roadcamera/" }
+            ]
+        },
+        {
+            title: "車両管理・その他",
+            links: [
+                { name: "Honda Total Care", url: "https://htc.honda.co.jp/member/" },
+                { name: "Google マップナビ", url: "https://www.google.co.jp/maps/dir///" },
+                { name: "Starlink ログイン", url: "https://www.starlink.com/account/home" }
+            ]
+        }
     ];
 
-    const grid = document.getElementById('link-grid');
-    quickLinks.forEach(link => {
-        const a = document.createElement('a');
-        a.href = link.url; a.className = 'link-card'; a.target = '_blank'; a.innerText = link.name;
-        grid.appendChild(a);
+    const categoryContainer = document.getElementById('category-container');
+    linkCategories.forEach(cat => {
+        const catDiv = document.createElement('div');
+        catDiv.className = 'link-category';
+        
+        let html = `<h3><i class="fa-solid fa-chevron-right" style="font-size:0.8rem; margin-right:5px;"></i>${cat.title}</h3>`;
+        html += `<div class="link-grid">`;
+        cat.links.forEach(link => {
+            html += `<a href="${link.url}" class="link-card" target="_blank">${link.name}</a>`;
+        });
+        html += `</div>`;
+        
+        catDiv.innerHTML = html;
+        categoryContainer.appendChild(catDiv);
     });
 </script>
 </body>
