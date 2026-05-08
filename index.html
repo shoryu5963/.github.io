@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>りんの旅地図</title>
     <style>
-        body { margin: 0; padding: 0; font-family: sans-serif; background: #f0f2f5; color: #333; }
+        body { margin: 0; padding: 0; font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif; background: #f0f2f5; color: #333; }
         header { background: #1a202c; color: white; padding: 15px; text-align: center; }
         
         main { max-width: 1200px; margin: 0 auto; padding: 20px; }
@@ -23,39 +23,31 @@
         .content-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 25px; }
         .content-card h2 { margin-top: 0; font-size: 1.1rem; border-left: 5px solid #3182ce; padding-left: 10px; margin-bottom: 15px; }
 
-        /* 天気グリッド：拠点を並べる */
+        /* 天気グリッド */
         .weather-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-            gap: 20px; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 15px; 
         }
         .weather-panel { 
-            background: #f8fafc; border-radius: 10px; padding: 15px; border: 1px solid #cbd5e1; 
+            background: #ffffff; border-radius: 10px; padding: 15px; border: 1px solid #e2e8f0; 
+            transition: transform 0.2s;
         }
         .weather-panel h3 { 
-            margin: 0 0 15px 0; font-size: 1.1rem; text-align: center; color: #2d3748; 
-            border-bottom: 2px solid #3182ce; padding-bottom: 5px;
+            margin: 0 0 12px 0; font-size: 1.1rem; text-align: center; color: #2d3748; 
+            border-bottom: 1px solid #edf2f7; padding-bottom: 8px;
         }
         
-        /* 3日分の横並びを強制 */
-        .forecast-days { 
-            display: flex; 
-            justify-content: space-between; 
-            gap: 5px; 
-        }
+        /* 3日間横並び */
+        .forecast-days { display: flex; justify-content: space-between; gap: 8px; }
         .day-box { 
-            flex: 1; 
-            text-align: center; 
-            background: white; 
-            padding: 10px 2px; 
-            border-radius: 8px; 
-            border: 1px solid #e2e8f0;
-            min-width: 0; /* 突き抜け防止 */
+            flex: 1; text-align: center; padding: 10px 4px; border-radius: 8px; 
+            background: #f8fafc; border: 1px solid #f1f5f9;
         }
-        .day-label { font-size: 0.8rem; font-weight: bold; color: #4a5568; margin-bottom: 5px; }
-        .day-icon { font-size: 2rem; margin: 5px 0; line-height: 1; }
-        .day-temp { font-size: 1rem; font-weight: bold; color: #e53e3e; margin-bottom: 2px; }
-        .day-low { font-size: 0.8rem; color: #3182ce; }
+        .day-label { font-size: 0.8rem; font-weight: bold; color: #64748b; margin-bottom: 6px; }
+        .day-icon { font-size: 2rem; margin: 4px 0; display: block; min-height: 40px; }
+        .day-temp-max { font-size: 1rem; font-weight: bold; color: #ef4444; margin-bottom: 2px; }
+        .day-temp-min { font-size: 0.85rem; font-weight: bold; color: #3b82f6; }
 
         /* ツール・リンク集 */
         .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
@@ -102,7 +94,7 @@
         <div class="content-card">
             <h2>地名で天気検索</h2>
             <div class="search-box">
-                <input type="text" id="weather-input" placeholder="例：阿蘇山、国道299">
+                <input type="text" id="weather-input" placeholder="例：阿蘇山、道の駅箱根">
                 <button class="btn-full btn-orange" onclick="searchWeather()">tenki.jpで検索</button>
             </div>
         </div>
@@ -123,22 +115,26 @@
         { name: "茅野", lat: 35.9953, lon: 138.1558 }
     ];
 
-    function getWeatherInfo(code) {
-        if (code === 0) return { icon: "☀️", text: "快晴" };
-        if (code <= 2) return { icon: "🌤", text: "晴れ" };
-        if (code === 3) return { icon: "☁️", text: "曇り" };
-        if (code <= 67 || (code >= 80 && code <= 82)) return { icon: "☔️", text: "雨" };
-        if (code <= 77) return { icon: "❄️", text: "雪" };
-        return { icon: "⚡️", text: "雷雨" };
+    // アイコンの統一：Google天気予報風のセット
+    function getWeatherIcon(code) {
+        if (code === 0) return "☀️"; // 快晴
+        if (code <= 2) return "🌤"; // 晴れ/薄曇り
+        if (code === 3) return "☁️"; // 曇り
+        if (code <= 48) return "🌫"; // 霧
+        if (code <= 67) return "☔️"; // 雨
+        if (code <= 77) return "❄️"; // 雪
+        if (code <= 82) return "🌧"; // にわか雨
+        if (code <= 86) return "🌨"; // 雪・雹
+        if (code <= 99) return "⚡️"; // 雷
+        return "❓";
     }
 
     locations.forEach(loc => {
         const panel = document.createElement('div');
         panel.className = 'weather-panel';
-        panel.innerHTML = `<h3>${loc.name}</h3><div style="text-align:center; padding:20px;">読み込み中...</div>`;
+        panel.innerHTML = `<h3>${loc.name}</h3><div style="text-align:center; padding:20px;">更新中...</div>`;
         weatherGrid.appendChild(panel);
 
-        // APIから3日分の日次データを取得
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo`;
 
         fetch(url).then(res => res.json()).then(data => {
@@ -146,19 +142,19 @@
             const labels = ["今日", "明日", "明後日"];
             
             for(let i=0; i<3; i++) {
-                const info = getWeatherInfo(data.daily.weather_code[i]);
+                const icon = getWeatherIcon(data.daily.weather_code[i]);
                 html += `
                     <div class="day-box">
                         <div class="day-label">${labels[i]}</div>
-                        <div class="day-icon" title="${info.text}">${info.icon}</div>
-                        <div class="day-temp">${Math.round(data.daily.temperature_2m_max[i])}℃</div>
-                        <div class="day-low">${Math.round(data.daily.temperature_2m_min[i])}℃</div>
+                        <div class="day-icon">${icon}</div>
+                        <div class="day-temp-max">${Math.round(data.daily.temperature_2m_max[i])}℃</div>
+                        <div class="day-temp-min">${Math.round(data.daily.temperature_2m_min[i])}℃</div>
                     </div>`;
             }
             html += `</div>`;
             panel.innerHTML = html;
         }).catch(() => {
-            panel.innerHTML = `<h3>${loc.name}</h3><div style="color:red; text-align:center; padding:10px;">エラー</div>`;
+            panel.innerHTML = `<h3>${loc.name}</h3><div style="color:red; text-align:center;">読み込み失敗</div>`;
         });
     });
 
