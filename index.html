@@ -53,10 +53,10 @@
 <main>
     <div class="map-section">
         <div class="map-wrapper">
-            <iframe allowfullscreen allow="geolocation" src="https://umap.openstreetmap.fr/ja/map/map_1403055?scaleControl=false&miniMap=false&scrollWheelZoom=true&zoomControl=true&editMode=disabled&moreControl=true&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=true"></iframe>
+            <iframe allowfullscreen allow="geolocation" src="https://umap.openstreetmap.fr/ja/map/map_1403055?scaleControl=true&miniMap=true&scrollWheelZoom=true&zoomControl=true&editMode=disabled&moreControl=true&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=true&locateControl=true"></iframe>
         </div>
         <div class="map-footer">
-            <a href="https://umap.openstreetmap.fr/ja/map/map_1403055" target="_blank">別タブでフルスクリーン表示 ↗</a>
+            <a href="https://umap.openstreetmap.fr/ja/map/map_1403055?scaleControl=true&miniMap=true&scrollWheelZoom=true&zoomControl=true&editMode=disabled&moreControl=true&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=true&locateControl=true" target="_blank">別タブでフルスクリーン表示 ↗</a>
         </div>
     </div>
 
@@ -67,13 +67,11 @@
 </main>
 
 <script>
-    // メンテナンス用：リンクを増やす場合はここに追加
     const quickLinks = [
         { name: "天気 (tenki.jp)", url: "https://tenki.jp/" },
         { name: "ドラぷら (高速料金)", url: "https://www.driveplaza.com/" },
         { name: "JARTIC (渋滞情報)", url: "https://www.jartic.or.jp/" },
-        { name: "Google マップ", url: "https://www.google.co.jp/maps" },
-        { name: "周辺のガソリンスタンド", url: "https://www.google.com/maps/search/%E3%82%AC%E3%82%BD%E3%83%AA%E3%83%B3%E3%82%B9%E3%82%BF%E3%83%B3%E3%83%89/" }
+        { name: "Google マップ", url: "https://www.google.co.jp/maps" }
     ];
 
     const grid = document.getElementById('link-grid');
