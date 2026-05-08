@@ -15,13 +15,12 @@
             background: white; border-radius: 12px; overflow: hidden;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 25px;
         }
-        /* 地図の高さ調整。vhは画面に対する高さの% */
         .map-wrapper iframe {
             width: 100%;
             height: 75vh;
             border: 0;
             display: block;
-            background: #e5e7eb; /* 読み込み前の背景色 */
+            background: #e5e7eb;
         }
 
         /* リンク集エリア */
@@ -54,7 +53,7 @@
 <main>
     <div class="map-section">
         <div class="map-wrapper">
-            <iframe allowfullscreen allow="geolocation" src="https://umap.openstreetmap.fr/ja/map/map_1403055?scaleControl=false&miniMap=false&scrollWheelZoom=false&zoomControl=true&editMode=disabled&moreControl=true&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=true"></iframe>
+            <iframe allowfullscreen allow="geolocation" src="https://umap.openstreetmap.fr/ja/map/map_1403055?scaleControl=false&miniMap=false&scrollWheelZoom=true&zoomControl=true&editMode=disabled&moreControl=true&searchControl=null&tilelayersControl=null&embedControl=null&datalayersControl=true&onLoadPanel=none&captionBar=false&captionMenus=true"></iframe>
         </div>
         <div class="map-footer">
             <a href="https://umap.openstreetmap.fr/ja/map/map_1403055" target="_blank">別タブでフルスクリーン表示 ↗</a>
@@ -68,12 +67,13 @@
 </main>
 
 <script>
-    // メンテナンス用リンク集
+    // メンテナンス用：リンクを増やす場合はここに追加
     const quickLinks = [
         { name: "天気 (tenki.jp)", url: "https://tenki.jp/" },
         { name: "ドラぷら (高速料金)", url: "https://www.driveplaza.com/" },
         { name: "JARTIC (渋滞情報)", url: "https://www.jartic.or.jp/" },
-        { name: "Google マップ", url: "https://www.google.co.jp/maps" }
+        { name: "Google マップ", url: "https://www.google.co.jp/maps" },
+        { name: "周辺のガソリンスタンド", url: "https://www.google.com/maps/search/%E3%82%AC%E3%82%BD%E3%83%AA%E3%83%B3%E3%82%B9%E3%82%BF%E3%83%B3%E3%83%89/" }
     ];
 
     const grid = document.getElementById('link-grid');
