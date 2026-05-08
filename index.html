@@ -27,13 +27,12 @@
         .content-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 25px; }
         .content-card h2 { margin-top: 0; font-size: 1.1rem; border-left: 5px solid #3182ce; padding-left: 10px; margin-bottom: 15px; }
 
-        /* 天気プリセット：4つを確実に並べる */
+        /* 天気プリセット */
         .weather-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 15px;
         }
-        .weather-item { min-height: 150px; }
 
         /* 検索・入力エリア */
         .search-box { display: flex; flex-direction: column; gap: 8px; }
@@ -87,22 +86,11 @@
     <div class="content-card">
         <h2>主要ポイントの天気</h2>
         <div class="weather-grid">
-            <div class="weather-item">
-                <a class="weatherwidget-io" href="https://forecast7.com/ja/35d69139d69/tokyo/" data-label_1="東京" data-label_2="TOKYO" data-theme="flat" data-days="3">TOKYO</a>
-            </div>
-            <div class="weather-item">
-                <a class="weatherwidget-io" href="https://forecast7.com/ja/36d32139d19/isesaki/" data-label_1="伊勢崎" data-label_2="ISESAKI" data-theme="flat" data-days="3">ISESAKI</a>
-            </div>
-            <div class="weather-item">
-                <a class="weatherwidget-io" href="https://forecast7.com/ja/35d42138d86/yamanakako/" data-label_1="山中湖" data-label_2="YAMANAKAKO" data-theme="flat" data-days="3">YAMANAKAKO</a>
-            </div>
-            <div class="weather-item">
-                <a class="weatherwidget-io" href="https://forecast7.com/ja/35d99138d15/chino/" data-label_1="茅野" data-label_2="CHINO" data-theme="flat" data-days="3">CHINO</a>
-            </div>
+            <a class="weatherwidget-io" href="https://forecast7.com/ja/35d69139d69/tokyo/" data-label_1="東京" data-label_2="TOKYO" data-theme="flat" data-days="3">TOKYO</a>
+            <a class="weatherwidget-io" href="https://forecast7.com/ja/36d32139d19/isesaki/" data-label_1="伊勢崎" data-label_2="ISESAKI" data-theme="flat" data-days="3">ISESAKI</a>
+            <a class="weatherwidget-io" href="https://forecast7.com/ja/35d42138d86/yamanakako/" data-label_1="山中湖" data-label_2="YAMANAKAKO" data-theme="flat" data-days="3">YAMANAKAKO</a>
+            <a class="weatherwidget-io" href="https://forecast7.com/ja/35d99138d15/chino/" data-label_1="茅野" data-label_2="CHINO" data-theme="flat" data-days="3">CHINO</a>
         </div>
-        <script>
-            !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
-        </script>
     </div>
 
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
@@ -148,6 +136,10 @@
         a.innerText = link.name;
         grid.appendChild(a);
     });
+</script>
+
+<script>
+!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
 </script>
 
 </body>
